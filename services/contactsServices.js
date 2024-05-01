@@ -45,7 +45,7 @@ async function addContact(name, email, phone) {
   return newContact;
 }
 
-async function updateContact(contactId, { name, email, phone }) {
+async function updateContact(contactId, data) {
   const contacts = await listContacts();
   const contactIndex = contacts.findIndex(
     (contact) => contact.id === contactId
@@ -55,7 +55,7 @@ async function updateContact(contactId, { name, email, phone }) {
     return null;
   }
 
-  const updatedContact = { ...contacts[contactIndex], name, email, phone };
+  const updatedContact = { ...contacts[contactIndex], ...data };
   contacts[contactIndex] = updatedContact;
   await writeContactsFile(contacts);
   return updatedContact;
