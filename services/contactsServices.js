@@ -27,12 +27,21 @@ async function updateContact(contactId, data) {
   return updatedContact;
 }
 
+async function updateContactFavorite(contactId, { favorite }) {
+  const updatedContact = await Contact.findByIdAndUpdate(contactId, {
+    favorite,
+  });
+
+  return updatedContact;
+}
+
 const contactsServices = {
   listContacts,
   getContactById,
   removeContact,
   addContact,
   updateContact,
+  updateContactFavorite,
 };
 
 export default contactsServices;
