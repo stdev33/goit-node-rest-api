@@ -3,7 +3,7 @@ export const handleSaveError = (error, data, next) => {
   next();
 };
 
-export const setUpdateContactSettings = function (next) {
+export const setUpdateSettings = function (next) {
   this.options.new = true;
   this.options.runValidators = true;
   next();
