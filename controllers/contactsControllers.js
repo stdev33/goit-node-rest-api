@@ -1,7 +1,8 @@
 import contactsService from "../services/contactsServices.js";
 import HttpError from "../helpers/HttpError.js";
+import controllerFuncWrapper from "../decorators/controllerFuncWrapper.js";
 
-export const getAllContacts = async (req, res, next) => {
+const getAllContacts = async (req, res, next) => {
   try {
     const contacts = await contactsService.listContacts();
     res.status(200).json(contacts);
@@ -10,7 +11,7 @@ export const getAllContacts = async (req, res, next) => {
   }
 };
 
-export const getOneContact = async (req, res, next) => {
+const getOneContact = async (req, res, next) => {
   try {
     const { id } = req.params;
     const contact = await contactsService.getContactById(id);
@@ -23,7 +24,7 @@ export const getOneContact = async (req, res, next) => {
   }
 };
 
-export const deleteContact = async (req, res, next) => {
+const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
     const deletedContact = await contactsService.removeContact(id);
@@ -36,7 +37,7 @@ export const deleteContact = async (req, res, next) => {
   }
 };
 
-export const createContact = async (req, res, next) => {
+const createContact = async (req, res, next) => {
   try {
     const { name, email, phone } = req.body;
     const newContact = await contactsService.addContact(name, email, phone);
@@ -46,7 +47,7 @@ export const createContact = async (req, res, next) => {
   }
 };
 
-export const updateContact = async (req, res, next) => {
+const updateContact = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedContact = await contactsService.updateContact(id, req.body);
@@ -59,7 +60,7 @@ export const updateContact = async (req, res, next) => {
   }
 };
 
-export const updateFavorite = async (req, res, next) => {
+const updateFavorite = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedContact = await contactsService.updateContactFavorite(
@@ -73,4 +74,13 @@ export const updateFavorite = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+export default {
+  getAllContacts: controllerFuncWrapper(getAllContacts),
+  getOneContact: controllerFuncWrapper(getOneContact),
+  deleteContact: controllerFuncWrapper(deleteContact),
+  createContact: controllerFuncWrapper(createContact),
+  updateContact: controllerFuncWrapper(updateContact),
+  updateFavorite: controllerFuncWrapper(updateFavorite),
 };
