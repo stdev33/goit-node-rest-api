@@ -58,3 +58,19 @@ export const updateContact = async (req, res, next) => {
     next(error);
   }
 };
+
+export const updateFavorite = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updatedContact = await contactsService.updateContactFavorite(
+      id,
+      req.body
+    );
+    if (!updatedContact) {
+      throw HttpError(404);
+    }
+    res.status(200).json(updatedContact);
+  } catch (error) {
+    next(error);
+  }
+};
