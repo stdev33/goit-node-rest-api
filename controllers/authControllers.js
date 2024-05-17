@@ -55,8 +55,18 @@ const logout = async (req, res) => {
   res.status(204).send();
 };
 
+const getCurrent = (req, res) => {
+  const { email, subscription } = req.user;
+
+  res.json({
+    username,
+    email,
+  });
+};
+
 export default {
   register: controllerFuncWrapper(register),
   login: controllerFuncWrapper(login),
   logout: controllerFuncWrapper(logout),
+  getCurrent: controllerFuncWrapper(getCurrent),
 };
