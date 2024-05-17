@@ -19,6 +19,48 @@ const register = async (req, res) => {
   });
 };
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await authServices.findUser({ email });
+  if (!user) {
+    throw HttpError(401, "Email or password is wrong");
+  }
+  const comparePassword = await compareHash(password, user.password);
+  if (!comparePassword) {
+    throw HttpError(401, "Email or password is wrong");
+  }
+
+  const { _id: id } = user;
+  const payload = {
+    id,
+  };
+
+  const token = createToken(payload);
+  await authServices.updateUser({ _id: id }, { token });
+
+  res.json({
+    token,
+    user: {
+      email: user.email,
+      subscription: user.subscription,
+    },
+  });
+};
+
+const logout = async (req, res) => {
+  const { _id } = req.user;
+  const user = await authServices.findUser({ _id });
+  if (!user) {
+    throw HttpError(401, "Not authorized");
+  }
+
+  await authServices.updateUser({ _id }, { token: "" });
+
+  res.status(204).send();
+};
+
 export default {
   register: controllerFuncWrapper(register),
+  login: controllerFuncWrapper(login),
+  logout: controllerFuncWrapper(logout),
 };

@@ -14,4 +14,13 @@ authRouter.post(
   authControllers.register
 );
 
+authRouter.post(
+  "/login",
+  isEmptyBody,
+  validateBody(authLoginSchema),
+  authControllers.login
+);
+
+authRouter.post("/logout", authenticate, authControllers.logout);
+
 export default authRouter;
