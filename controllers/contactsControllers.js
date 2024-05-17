@@ -4,7 +4,23 @@ import controllerFuncWrapper from "../decorators/controllerFuncWrapper.js";
 
 const getAllContacts = async (req, res, next) => {
   try {
-    const contacts = await contactsService.listContacts();
+    const { _id: owner } = req.user;
+    const filter = { owner };
+    const fields = "-createdAt -updatedAt";
+    const { page = 1, limit = 10, favorite } = req.query;
+    const skip = (page - 1) * limit;
+    const settings = { skip, limit };
+
+    if (favorite) {
+      filter.favorite = favorite === "true";
+    }
+
+    const contacts = await contactsService.listContacts({
+      filter,
+      fields,
+      settings,
+    });
+
     res.status(200).json(contacts);
   } catch (error) {
     next(error);
