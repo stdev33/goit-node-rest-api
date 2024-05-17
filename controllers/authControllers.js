@@ -49,10 +49,6 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   const { _id } = req.user;
-  const user = await authServices.findUser({ _id });
-  if (!user) {
-    throw HttpError(401, "Not authorized");
-  }
 
   await authServices.updateUser({ _id }, { token: "" });
 
