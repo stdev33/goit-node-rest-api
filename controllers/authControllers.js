@@ -59,8 +59,24 @@ const getCurrent = (req, res) => {
   const { email, subscription } = req.user;
 
   res.json({
-    username,
     email,
+    subscription,
+  });
+};
+
+const updateSubscription = async (req, res) => {
+  const { _id } = req.user;
+  const { subscription } = req.body;
+
+  const updatedUser = await authServices.updateUser({ _id }, { subscription });
+
+  if (!updatedUser) {
+    throw HttpError(404, "User not found");
+  }
+
+  res.json({
+    email: updatedUser.email,
+    subscription: updatedUser.subscription,
   });
 };
 
@@ -69,4 +85,5 @@ export default {
   login: controllerFuncWrapper(login),
   logout: controllerFuncWrapper(logout),
   getCurrent: controllerFuncWrapper(getCurrent),
+  updateSubscription: controllerFuncWrapper(updateSubscription),
 };

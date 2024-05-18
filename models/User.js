@@ -1,12 +1,16 @@
 import { Schema, model } from "mongoose";
 import { handleSaveError, setUpdateSettings } from "./hooks.js";
-import { emailRegexp } from "../constants/constants.js";
+import { emailRegexp, passwordMinLength } from "../constants/constants.js";
 
 const userSchema = new Schema(
   {
     password: {
       type: String,
       required: [true, "Password is required"],
+      minlength: [
+        passwordMinLength,
+        `Password must be at least ${passwordMinLength} characters long`,
+      ],
     },
     email: {
       type: String,

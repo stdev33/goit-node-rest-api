@@ -1,10 +1,11 @@
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
+import { bcryptSaltRounds } from "../constants/constants.js";
 
 const findUser = (filter) => User.findOne(filter);
 
 const saveUser = async (data) => {
-  const encryptedPassword = await bcrypt.hash(data.password, 10);
+  const encryptedPassword = await bcrypt.hash(data.password, bcryptSaltRounds);
   return User.create({ ...data, password: encryptedPassword });
 };
 
