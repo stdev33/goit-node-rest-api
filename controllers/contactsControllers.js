@@ -29,8 +29,9 @@ const getAllContacts = async (req, res, next) => {
 
 const getOneContact = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const contact = await contactsService.getContactById(id);
+    const { id: _id } = req.params;
+    const { _id: owner } = req.user;
+    const contact = await contactsService.getContactById({ _id, owner });
     if (!contact) {
       throw HttpError(404);
     }
@@ -42,8 +43,9 @@ const getOneContact = async (req, res, next) => {
 
 const deleteContact = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const deletedContact = await contactsService.removeContact(id);
+    const { id: _id } = req.params;
+    const { _id: owner } = req.user;
+    const deletedContact = await contactsService.removeContact({ _id, owner });
     if (!deletedContact) {
       throw HttpError(404);
     }
@@ -55,8 +57,8 @@ const deleteContact = async (req, res, next) => {
 
 const createContact = async (req, res, next) => {
   try {
-    const { name, email, phone } = req.body;
-    const newContact = await contactsService.addContact(name, email, phone);
+    const { _id: owner } = req.user;
+    const newContact = await contactsService.addContact({ ...req.body, owner });
     res.status(201).json(newContact);
   } catch (error) {
     next(error);
@@ -65,8 +67,12 @@ const createContact = async (req, res, next) => {
 
 const updateContact = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const updatedContact = await contactsService.updateContact(id, req.body);
+    const { id: _id } = req.params;
+    const { _id: owner } = req.user;
+    const updatedContact = await contactsService.updateContact(
+      { _id, owner },
+      req.body
+    );
     if (!updatedContact) {
       throw HttpError(404);
     }
@@ -78,9 +84,10 @@ const updateContact = async (req, res, next) => {
 
 const updateFavorite = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id: _id } = req.params;
+    const { _id: owner } = req.user;
     const updatedContact = await contactsService.updateContactFavorite(
-      id,
+      { _id, owner },
       req.body
     );
     if (!updatedContact) {

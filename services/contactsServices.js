@@ -9,29 +9,28 @@ async function listContacts(searchOptions = {}) {
   return result;
 }
 
-async function getContactById(contactId) {
-  const result = await Contact.findById(contactId);
+async function getContactById(filter) {
+  const result = await Contact.findOne(filter);
   return result;
 }
 
-async function removeContact(contactId) {
-  const deletedContact = await Contact.findByIdAndDelete(contactId);
+async function removeContact(filter) {
+  const deletedContact = await Contact.findOneAndDelete(filter);
   return deletedContact;
 }
 
-async function addContact(name, email, phone) {
-  const newContact = { name, email, phone };
-  const result = await Contact.create(newContact);
+async function addContact(data) {
+  const result = await Contact.create(data);
   return result;
 }
 
-async function updateContact(contactId, data) {
-  const updatedContact = await Contact.findByIdAndUpdate(contactId, data);
+async function updateContact(filter, data) {
+  const updatedContact = await Contact.findOneAndUpdate(filter, data);
   return updatedContact;
 }
 
-async function updateContactFavorite(contactId, { favorite }) {
-  const updatedContact = await Contact.findByIdAndUpdate(contactId, {
+async function updateContactFavorite(filter, { favorite }) {
+  const updatedContact = await Contact.findOneAndUpdate(filter, {
     favorite,
   });
 
