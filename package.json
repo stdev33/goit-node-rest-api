@@ -6,6 +6,14 @@
     "start": "node ./db.js",
     "dev": "nodemon ./db.js"
   },
+  "jest": {
+    "testEnvironment": "node",
+    "clearMocks": true,
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageProvider": "v8",
+    "transform": {}
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
