@@ -7,6 +7,7 @@ import jimp from "jimp";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs/promises";
 import path from "path";
+import sendEmailVerificationLink from "../helpers/sendEmailVerificationLink.js";
 
 const avatarsPath = path.resolve("public", "avatars");
 
@@ -17,7 +18,14 @@ const register = async (req, res) => {
     throw HttpError(409, "Email in use");
   }
 
-  const createdUser = await authServices.saveUser(req.body);
+  const verificationToken = uuidv4();
+
+  const createdUser = await authServices.saveUser({
+    ...req.body,
+    verificationToken,
+  });
+
+  await sendEmailVerificationLink(email, verificationToken);
 
   res.status(201).json({
     user: {
@@ -33,6 +41,11 @@ const login = async (req, res) => {
   if (!user) {
     throw HttpError(401, "Email or password is wrong");
   }
+
+  if (!user.verify) {
+    throw HttpError(403, "Email not verified");
+  }
+
   const comparePassword = await compareHash(password, user.password);
   if (!comparePassword) {
     throw HttpError(401, "Email or password is wrong");
@@ -133,10 +146,32 @@ const verify = async (req, res) => {
 
   await authServices.updateUser(
     { _id: user._id },
-    { verify: true, verificationToken: null }
+    { verify: true, verificationToken: "null" }
   );
 
   res.json({ message: "Verification successful" });
+};
+
+const resendVerificationEmail = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw HttpError(400, "missing required field email");
+  }
+
+  const user = await authServices.findUser({ email });
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  await sendEmailVerificationLink(email, user.verificationToken);
+
+  res.json({
+    message: "Verification email sent",
+  });
 };
 
 export default {
@@ -147,4 +182,5 @@ export default {
   updateSubscription: controllerFuncWrapper(updateSubscription),
   updateAvatar: controllerFuncWrapper(updateAvatar),
   verify: controllerFuncWrapper(verify),
+  resendVerificationEmail: controllerFuncWrapper(resendVerificationEmail),
 };
