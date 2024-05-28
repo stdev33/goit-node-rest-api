@@ -3,6 +3,12 @@ import controllerFuncWrapper from "../decorators/controllerFuncWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 import compareHash from "../helpers/compareHash.js";
 import { createToken } from "../helpers/jwt.js";
+import jimp from "jimp";
+import { v4 as uuidv4 } from "uuid";
+import fs from "fs/promises";
+import path from "path";
+
+const avatarsPath = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
   const { email } = req.body;
@@ -82,10 +88,47 @@ const updateSubscription = async (req, res) => {
   });
 };
 
+const updateAvatar = async (req, res) => {
+  if (!req.file) {
+    throw HttpError(400, "No file uploaded");
+  }
+
+  try {
+    const { path: tempPath, originalname } = req.file;
+    const newFileName = uuidv4() + path.extname(originalname);
+    const newPath = path.join(avatarsPath, newFileName);
+
+    const image = await jimp.read(tempPath);
+    await image.resize(250, 250).writeAsync(newPath);
+    await fs.unlink(tempPath);
+
+    const avatarURL = `/avatars/${newFileName}`;
+    const updatedUser = await authServices.updateUser(
+      { _id: req.user._id },
+      { avatarURL }
+    );
+
+    if (!updatedUser) {
+      throw HttpError(404, "User not found");
+    }
+
+    res.status(200).json({ avatarURL });
+  } catch (error) {
+    if (req.file) {
+      await fs
+        .unlink(req.file.path)
+        .catch((e) => console.error("Cannot remove temp file", e));
+    }
+
+    res.status(500).json({ message: "Cannot process image" });
+  }
+};
+
 export default {
   register: controllerFuncWrapper(register),
   login: controllerFuncWrapper(login),
   logout: controllerFuncWrapper(logout),
   getCurrent: controllerFuncWrapper(getCurrent),
   updateSubscription: controllerFuncWrapper(updateSubscription),
+  updateAvatar: controllerFuncWrapper(updateAvatar),
 };
