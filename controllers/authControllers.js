@@ -124,6 +124,21 @@ const updateAvatar = async (req, res) => {
   }
 };
 
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await authServices.findUser({ verificationToken });
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  await authServices.updateUser(
+    { _id: user._id },
+    { verify: true, verificationToken: null }
+  );
+
+  res.json({ message: "Verification successful" });
+};
+
 export default {
   register: controllerFuncWrapper(register),
   login: controllerFuncWrapper(login),
@@ -131,4 +146,5 @@ export default {
   getCurrent: controllerFuncWrapper(getCurrent),
   updateSubscription: controllerFuncWrapper(updateSubscription),
   updateAvatar: controllerFuncWrapper(updateAvatar),
+  verify: controllerFuncWrapper(verify),
 };
